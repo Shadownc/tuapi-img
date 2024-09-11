@@ -1,8 +1,9 @@
 ## 爬取`tuapi.eees.cc`所有图片到自己的云盘
 
 ## 1. 注册一个云盘
-[注册地址](https://infini-cloud.net/en/)
-注册完成后开启[Webdav](https://infini-cloud.net/en/modules/mypage/usage/)
+[注册地址](https://infini-cloud.net/en/)  
+注册完成后开启[Webdav](https://infini-cloud.net/en/modules/mypage/usage/)  
+填写邀请码多获取5G容量：`GU9N4`  
 开启后会给你
 `WebDAV Connection URL`
 `Connection ID`
