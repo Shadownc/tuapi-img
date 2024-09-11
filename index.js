@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 
 if (fs.existsSync('.env.local')) {
     dotenv.config({ path: '.env.local' });
-}else{
+} else {
     dotenv.config();
 }
 
@@ -17,7 +17,7 @@ const WEBDAV_PASSWORD = process.env.WEBDAV_PASSWORD;
 async function getWebdavClient() {
     const { createClient } = await import('webdav');
     return createClient(
-        WEBDAV_URL, 
+        WEBDAV_URL,
         {
             username: WEBDAV_USERNAME,
             password: WEBDAV_PASSWORD,
@@ -43,7 +43,7 @@ async function fetchProxyIpList() {
 async function updateProxyPool() {
     const proxyList = await fetchProxyIpList();
     if (proxyList.length > 0) {
-        proxies = proxyList; 
+        proxies = proxyList;
         console.log(`代理IP池已更新: ${proxyList.join(', ')}`);
     } else {
         console.log('没有获取到新的代理IP');
@@ -55,9 +55,28 @@ function getNextProxy() {
         throw new Error('代理池为空');
     }
 
+    if (currentProxyIndex >= proxies.length) {
+        currentProxyIndex = 0;
+    }
+
     const proxy = proxies[currentProxyIndex];
     currentProxyIndex = (currentProxyIndex + 1) % proxies.length;
     return proxy;
+}
+
+function removeCurrentProxy() {
+    if (proxies.length === 0) {
+        console.error('代理池为空，无法移除代理');
+        return;
+    }
+
+    const removedProxy = proxies.splice(currentProxyIndex, 1)[0];
+
+    // console.log(`已移除无效代理: ${removedProxy}`);
+
+    if (currentProxyIndex >= proxies.length) {
+        currentProxyIndex = 0;
+    }
 }
 
 async function fetchImageUrl() {
@@ -83,6 +102,7 @@ async function fetchImageUrl() {
     } catch (error) {
         console.error('获取图片URL时出错:', error.message);
         console.error('错误响应数据:', error.response ? error.response.data : '无响应数据');
+        removeCurrentProxy();
         return null;
     }
 }
@@ -93,10 +113,10 @@ async function startContinuousScraping() {
     while (true) {
         const imageUrl = await fetchImageUrl();
         if (imageUrl) {
-            const filename = path.basename(imageUrl); 
+            const filename = path.basename(imageUrl);
             await downloadAndUploadImage(imageUrl, filename);
         }
-        await delay(5000); 
+        await delay(5000);
     }
 }
 
@@ -113,7 +133,7 @@ async function downloadAndUploadImage(imageUrl, filename) {
         try {
             await webdavClient.stat(`/tuapi/${filename}`);
             console.log(`文件 ${filename} 已存在，跳过上传。`);
-            return; 
+            return;
         } catch (err) {
             console.log(`文件 ${filename} 不存在，准备下载并上传。`);
         }
