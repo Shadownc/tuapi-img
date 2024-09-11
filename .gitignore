@@ -1,0 +1,5 @@
+/node_modules
+package-lock.json
+/index_bak.js
+/index-初版.js
+/.env.local
