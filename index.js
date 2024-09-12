@@ -2,6 +2,7 @@ const axios = require('axios');
 const { HttpsProxyAgent } = require('https-proxy-agent');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const dotenv = require('dotenv');
 
 if (fs.existsSync('.env.local')) {
@@ -13,6 +14,8 @@ if (fs.existsSync('.env.local')) {
 const WEBDAV_URL = process.env.WEBDAV_URL;
 const WEBDAV_USERNAME = process.env.WEBDAV_USERNAME;
 const WEBDAV_PASSWORD = process.env.WEBDAV_PASSWORD;
+
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 async function getWebdavClient() {
     const { createClient } = await import('webdav');
@@ -94,6 +97,7 @@ async function fetchImageUrl() {
                 return status >= 200 && status < 400;
             },
             httpAgent: agent,
+            httpsAgent
         });
 
         const imageUrl = response.headers['location'];
@@ -141,7 +145,8 @@ async function downloadAndUploadImage(imageUrl, filename) {
         const response = await axios({
             url: imageUrl,
             method: 'GET',
-            responseType: 'stream'
+            responseType: 'stream',
+            httpsAgent
         });
 
         const tempFilePath = path.join(__dirname, filename);
