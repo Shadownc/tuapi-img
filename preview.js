@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 // 加载 .env 文件中的配置
 if (fs.existsSync('.env.local')) {
     dotenv.config({ path: '.env.local' });
-}else{
+} else {
     dotenv.config();
 }
 
@@ -38,7 +38,7 @@ async function getImageList() {
         const directoryItems = await webdavClient.getDirectoryContents('/tuapi/');
         // 过滤出图片文件（假设图片文件是 .jpg, .png 等常见格式）
         const imageFiles = directoryItems.filter(item =>
-            item.type === 'file' && (item.basename.endsWith('.jpg') || item.basename.endsWith('.png'))
+            item.type === 'file' && (item.basename.endsWith('.jpg') || item.basename.endsWith('.png') || item.basename.endsWith('.webp'))
         );
         console.log(`当前图片数量:${imageFiles.length}`);
         return imageFiles;
